@@ -1,7 +1,7 @@
 {
-  "versionCode": 20,
-  "versionName": "2.0.5",
-  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerX2_v20.apk",
-  "sha256": "ccca76c8a9ebe272180dd0c4659831334998be732db635dcdf61753dfb74190d",
-  "novedades": "Ajustes antiguos con textos traducidos al español, nuevas secciones Contáctame y Ayudar al proyecto, compatibilidad con el proveedor de ajustes del motor original y mensaje de bienvenida actualizado."
+  "versionCode": 21,
+  "versionName": "2.0.6",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerEx2_v21.apk",
+  "sha256": "d3c0fdb9c08b26abefba568fb4bb7f5188c830e076d3eec567a74a78289b7190",
+  "novedades": "Cambio de nombre completado: la aplicación ahora se llama VocalizerEx2 TTS en todas partes (bienvenida, copias de seguridad y mensajes). Las copias de seguridad hechas con versiones anteriores se pueden restaurar sin problema. Los archivos de copia nuevos se guardan como VocalizerEx2_copia_ con la fecha y la hora."
 }
