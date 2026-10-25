@@ -1,7 +1,7 @@
 {
-  "versionCode": 15,
-  "versionName": "2.0",
-  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerX2_v15.apk",
-  "sha256": "8b186815e83384027aee4efdbbf1a6d28a550c72d1260be105ce1e4f99186aa6",
-  "novedades": "Primera versión con actualizaciones automáticas."
+  "versionCode": 16,
+  "versionName": "2.0.1",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerX2_v16.apk",
+  "sha256": "12a4af2a162d73c3d7dc0f540aa5076714911eb20e4094a745050947d1280754",
+  "novedades": "Versión de prueba del sistema de actualizaciones automáticas. Si ves este mensaje, la actualización funcionó."
 }
