@@ -1,7 +1,7 @@
 {
   "versionCode": 15,
   "versionName": "2.0",
-  "apk": "https://github.com/elfantasma29/Apk-x2/releases/download/v15/VocalizerX2.apk",
-  "sha256": "0e4122f583c9c81363748d31b9395122d6f06aa20ca5e2ce5bb0a295ccdf87a9",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerX2_v15.apk",
+  "sha256": "8b186815e83384027aee4efdbbf1a6d28a550c72d1260be105ce1e4f99186aa6",
   "novedades": "Primera versión con actualizaciones automáticas."
 }
