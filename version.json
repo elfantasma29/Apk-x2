@@ -1,7 +1,7 @@
 {
-  "versionCode": 19,
-  "versionName": "2.0.4",
-  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerX2_v19.apk",
-  "sha256": "f1af942af87108eb18287ca0392e28d64a058612c8c91159998529b19f92c933",
-  "novedades": "Versión de prueba del sistema de actualizaciones del paquete vocalizer_e2.tts. Si ves este mensaje, la actualización funcionó."
+  "versionCode": 20,
+  "versionName": "2.0.5",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerX2_v20.apk",
+  "sha256": "ccca76c8a9ebe272180dd0c4659831334998be732db635dcdf61753dfb74190d",
+  "novedades": "Ajustes antiguos con textos traducidos al español, nuevas secciones Contáctame y Ayudar al proyecto, compatibilidad con el proveedor de ajustes del motor original y mensaje de bienvenida actualizado."
 }
