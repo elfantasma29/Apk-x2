@@ -1,7 +1,7 @@
 {
-  "versionCode": 21,
-  "versionName": "2.0.6",
-  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerEx2_v21.apk",
-  "sha256": "d3c0fdb9c08b26abefba568fb4bb7f5188c830e076d3eec567a74a78289b7190",
-  "novedades": "Cambio de nombre completado: la aplicación ahora se llama VocalizerEx2 TTS en todas partes (bienvenida, copias de seguridad y mensajes). Las copias de seguridad hechas con versiones anteriores se pueden restaurar sin problema. Los archivos de copia nuevos se guardan como VocalizerEx2_copia_ con la fecha y la hora."
+  "versionCode": 22,
+  "versionName": "2.0.0",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerEx2_v22.apk",
+  "sha256": "d19bd21d289bac16ffbbf4cd3cd0fdea53b9c2777c55d99ebb274f5398bef117",
+  "novedades": "Bienvenido a VocalizerEx2 TTS."
 }
