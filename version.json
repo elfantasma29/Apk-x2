@@ -1,7 +1,7 @@
 {
-  "versionCode": 22,
-  "versionName": "2.0.0",
-  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerEx2_v22.apk",
-  "sha256": "d19bd21d289bac16ffbbf4cd3cd0fdea53b9c2777c55d99ebb274f5398bef117",
-  "novedades": "Bienvenido a VocalizerEx2 TTS."
+  "versionCode": 23,
+  "versionName": "2.0.1",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerEx2_v23.apk",
+  "sha256": "0be3bfb30bc0b2696da56eca2ad6211ecdf7ec247142882806bb0e0305688171",
+  "novedades": "Nueva opción: Compartir diccionario. En Ajustes de texto de lectura, dentro de Personalizar diccionario, ahora puedes compartir tu diccionario de palabras con otras aplicaciones, como WhatsApp, Telegram o correo, usando el menú de compartir de Android. Es independiente de Importar y Exportar diccionario."
 }
