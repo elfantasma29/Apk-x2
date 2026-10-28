@@ -1,7 +1,7 @@
 {
-  "versionCode": 23,
-  "versionName": "2.0.1",
-  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerEx2_v23.apk",
-  "sha256": "0be3bfb30bc0b2696da56eca2ad6211ecdf7ec247142882806bb0e0305688171",
-  "novedades": "Nueva opción: Compartir diccionario. En Ajustes de texto de lectura, dentro de Personalizar diccionario, ahora puedes compartir tu diccionario de palabras con otras aplicaciones, como WhatsApp, Telegram o correo, usando el menú de compartir de Android. Es independiente de Importar y Exportar diccionario."
+  "versionCode": 26,
+  "versionName": "2.0.4",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerEx2_v26.apk",
+  "sha256": "8c19ec791b98f1f0a814e232e3e760b04d6cf592000682cb8d0a4ce7bfd7d6af",
+  "novedades": "Ahora puedes compartir los fallos del motor fácilmente. Si el motor no inicia o tiene algún problema, ve a Ajustes, Herramientas, y toca \"Compartir fallos del motor\" para enviarme el archivo con el detalle de lo que pasó, ya sea al grupo oficial o a mi contacto, ambos disponibles dentro de la misma aplicación. Ese archivo es muy importante para mí: me dice exactamente qué problema estás teniendo. Así que si algo te falla, por favor ayúdame a corregirlo compartiéndomelo. También, gracias a la sugerencia de una persona que probó la app, ahora puedes importar tu diccionario directamente desde WhatsApp: al abrir el archivo del diccionario que te compartan, VocalizerEx2 TTS aparece en la lista de aplicaciones para abrirlo, y se importa solo. Además, se trabajó en mejorar la compatibilidad con algunos dispositivos, se solucionaron problemas que hacían que el teléfono se calentara más de lo normal, se intentó corregir otros detalles menores, y se hicieron varias optimizaciones internas."
 }
