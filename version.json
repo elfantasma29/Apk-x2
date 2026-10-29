@@ -1,7 +1,7 @@
 {
-  "versionCode": 26,
-  "versionName": "2.0.4",
-  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerEx2_v26.apk",
-  "sha256": "8c19ec791b98f1f0a814e232e3e760b04d6cf592000682cb8d0a4ce7bfd7d6af",
-  "novedades": "Ahora puedes compartir los fallos del motor fácilmente. Si el motor no inicia o tiene algún problema, ve a Ajustes, Herramientas, y toca \"Compartir fallos del motor\" para enviarme el archivo con el detalle de lo que pasó, ya sea al grupo oficial o a mi contacto, ambos disponibles dentro de la misma aplicación. Ese archivo es muy importante para mí: me dice exactamente qué problema estás teniendo. Así que si algo te falla, por favor ayúdame a corregirlo compartiéndomelo. También, gracias a la sugerencia de una persona que probó la app, ahora puedes importar tu diccionario directamente desde WhatsApp: al abrir el archivo del diccionario que te compartan, VocalizerEx2 TTS aparece en la lista de aplicaciones para abrirlo, y se importa solo. Además, se trabajó en mejorar la compatibilidad con algunos dispositivos, se solucionaron problemas que hacían que el teléfono se calentara más de lo normal, se intentó corregir otros detalles menores, y se hicieron varias optimizaciones internas."
+  "versionCode": 27,
+  "versionName": "2.0.5",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/apk/VocalizerEx2_v27.apk",
+  "sha256": "02f5da708887dc3c7d1735f4b8fc19f0b232dabaee40cfa0dc8b2c0c1ec2ee0d",
+  "novedades": "Gracias por acompañarme en esta versión.\n\nSe solucionó el problema que impedía importar un diccionario desde otra aplicación. Ahora, al abrir un archivo de diccionario desde WhatsApp y elegir VocalizerEx2 TTS, la aplicación te pregunta si quieres importarlo, y listo.\n\nCompartir diccionario ahora envía un archivo de texto de verdad, que cualquier persona puede abrir con este motor.\n\nTambién se corrigieron algunos problemas menores.\n\nEl próximo lanzamiento llegará muy pronto.\n\nEste es un proyecto independiente. Si lo disfrutas y está en tus posibilidades, tu apoyo económico, siempre voluntario, ayudará a que lleguen los próximos cuatro lanzamientos. Es solo una invitación, y si no puedes, que uses y pruebes el motor ya es un gran apoyo.\n\nSi el motor te da algún fallo, te pido de favor que me avises y me compartas el archivo de texto con los errores del motor. Lo encuentras en Ajustes, Herramientas, \"Compartir fallos del motor\". Con él podré solucionarlo.\n\nMuchas gracias por estar aquí y por probar el motor."
 }
