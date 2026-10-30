@@ -101,7 +101,7 @@ public class DescargaService extends Service {
     }
 
     private void progreso(String titulo) {
-        getSystemService(NotificationManager.class).notify(ID, notificacion(titulo, Texto.avance(hecho, total)));
+        getSystemService(NotificationManager.class).notify(ID, notificacion(titulo, Medida.avance(hecho, total)));
     }
 
     private void trabajar(Voces.Voz v, boolean instalar, Uri origen) {
@@ -182,7 +182,7 @@ public class DescargaService extends Service {
                 long ahora = System.currentTimeMillis();
                 if (ahora - ultimo > 1000) {
                     ultimo = ahora;
-                    mensaje = "Copiando " + Texto.avance(hecho, 0);
+                    mensaje = "Copiando " + Medida.avance(hecho, 0);
                 }
             }
         }
@@ -250,7 +250,7 @@ public class DescargaService extends Service {
                         long ahora = System.currentTimeMillis();
                         if (ahora - ultimo > 1000) {
                             ultimo = ahora;
-                            mensaje = "Descargando " + v.nombre + ", parte " + (k + 1) + " de " + v.partes.length + ", " + Texto.avance(hecho, total);
+                            mensaje = "Descargando " + v.nombre + ", parte " + (k + 1) + " de " + v.partes.length + ", " + Medida.avance(hecho, total);
                             progreso("Descargando " + v.nombre);
                         }
                     }

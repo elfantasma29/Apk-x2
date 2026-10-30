@@ -153,7 +153,7 @@ public class MainActivity extends Activity {
             boolean esta = ocupado && v.clave.equals(DescargaService.clave);
             String s;
             if (esta) {
-                s = DescargaService.fase + ", " + Texto.avance(DescargaService.hecho, DescargaService.total);
+                s = DescargaService.fase + ", " + Medida.avance(DescargaService.hecho, DescargaService.total);
             } else if (inst) {
                 s = "Instalada. " + v.completo();
             } else {

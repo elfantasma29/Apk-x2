@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Ivona TTS</string>
+    <string name="settings_label">Ivona TTS</string>
+    <string name="sample_text">Esta es una prueba de la voz seleccionada.</string>
 </resources>

@@ -43,6 +43,10 @@ final class Voces {
             return nombre + ", " + detalle + ", " + megas + " MB";
         }
 
+        String idioma() {
+            return "es-" + pais2;
+        }
+
         String nombreVoz() {
             return "ivona-" + clave;
         }
@@ -120,6 +124,12 @@ final class Voces {
         }
         for (Voz v : inst) {
             if (mismoPais(v, pais)) {
+                return v;
+            }
+        }
+        String pref = Ajustes.p(c).getString("voz_preferida", "");
+        for (Voz v : inst) {
+            if (v.clave.equals(pref)) {
                 return v;
             }
         }

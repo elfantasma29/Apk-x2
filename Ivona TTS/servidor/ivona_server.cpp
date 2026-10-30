@@ -271,7 +271,13 @@ int main(int argc,char**argv){
       RN* s=findrn("synthesizeText");
       jint x=s?((st_t)s->f)(g_e,(jobject)g_self,J_NewStringUTF(g_e,c.payload.c_str()),(jobject)g_cb):-99;
       char b[64]; snprintf(b,sizeof b,"R\tSPEAK\t%d\n",(int)x); send_line(b);
-    } else if(c.name=="PING"){ send_line("R\tPONG\n"); }
+    } else if(c.name=="PING"){ send_line("R\tPONG\n");
+    } else if(c.name=="PROP"){
+      RN* s=findrn("setVoiceParam");
+      jint x=-99;
+      if(s && c.args.size()>=2){ typedef jint (*sv_t)(JNIEnv*,jobject,jstring,jint); x=((sv_t)s->f)(g_e,(jobject)g_self,J_NewStringUTF(g_e,c.args[0].c_str()),(jint)atoi(c.args[1].c_str())); }
+      char b[96]; snprintf(b,sizeof b,"R\tPROP\t%d\n",(int)x); send_line(b);
+    }
   }
   return 0;
 }

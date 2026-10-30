@@ -76,6 +76,12 @@ final class Servidor {
             anotar("Lanzando: " + comando);
             final Process p = new ProcessBuilder(comando).start();
             proceso = p;
+            try {
+                java.lang.reflect.Field fp = p.getClass().getDeclaredField("pid");
+                fp.setAccessible(true);
+                android.os.Process.setThreadPriority(fp.getInt(p), android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+            } catch (Throwable ignored) {
+            }
             entrada = p.getOutputStream();
             salida = new BufferedInputStream(p.getInputStream(), 65536);
             final InputStream err = p.getErrorStream();

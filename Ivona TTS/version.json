@@ -1,0 +1,7 @@
+{
+  "versionCode": 2,
+  "versionName": "0.2.0",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/Ivona%20TTS/apk/IvonaTTS_v0.2.0.apk",
+  "sha256": "3808579dc471af679aea69b60acd83f61d4b65d83b6179970c79633ff6276e3c",
+  "novedades": "Ivona TTS 0.2.0.\n\nAhora tiene los ajustes del motor principal: volumen, velocidad y tono, voz preferida, lectura de emoji, números, fechas y enlaces, diccionario con importar, exportar y compartir, volumen multimedia, evitar cortes, modo compatible con lectores de pantalla, copia de seguridad y restauración, y herramientas para compartir fallos.\n\nSi la aplicación te da algún fallo, compárteme el archivo desde Ajustes, Herramientas, Compartir fallos del motor."
+}

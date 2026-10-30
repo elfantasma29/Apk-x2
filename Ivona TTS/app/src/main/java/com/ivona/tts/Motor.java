@@ -33,6 +33,122 @@ final class Motor {
 
     private Motor(Context c) {
         this.ctx = c;
+        final Thread.UncaughtExceptionHandler previo = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler((th, ex) -> {
+            try {
+                guardarFallo("hilo " + th.getName(), ex);
+            } catch (Throwable ignored) {
+            }
+            if (previo != null) {
+                previo.uncaughtException(th, ex);
+            }
+        });
+    }
+
+    private static volatile int memoriaBaja = -1;
+
+    static boolean bajaMemoria(Context c) {
+        if (memoriaBaja < 0) {
+            boolean baja = false;
+            try {
+                android.app.ActivityManager am = (android.app.ActivityManager) c.getSystemService(Context.ACTIVITY_SERVICE);
+                android.app.ActivityManager.MemoryInfo mi = new android.app.ActivityManager.MemoryInfo();
+                am.getMemoryInfo(mi);
+                baja = am.isLowRamDevice() || mi.totalMem < 3600L * 1024L * 1024L;
+            } catch (Throwable ignored) {
+            }
+            memoriaBaja = baja ? 1 : 0;
+        }
+        return memoriaBaja == 1;
+    }
+
+    synchronized boolean vivo() {
+        return servidor != null && servidor.vivo();
+    }
+
+    void apagar() {
+        detenerProceso();
+    }
+
+    void reiniciarSuave() {
+        detenerProceso();
+    }
+
+    synchronized String estado() {
+        if (servidor != null && servidor.vivo()) {
+            return "Motor en marcha. Voz " + (actual == null ? "" : actual.nombre) + " " + servidor.detalles;
+        }
+        return Voces.instaladas(ctx).isEmpty() ? "No hay voces instaladas" : "Motor en reposo; arranca al leer";
+    }
+
+    void log(String s) {
+        try {
+            java.io.File f = archivoRegistro();
+            if (f.length() > 300000) {
+                f.delete();
+            }
+            try (FileOutputStream o = new FileOutputStream(f, true)) {
+                o.write((s + "\n").getBytes(StandardCharsets.UTF_8));
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    void guardarFallo(String donde, Throwable t) {
+        java.io.StringWriter sw = new java.io.StringWriter();
+        t.printStackTrace(new java.io.PrintWriter(sw));
+        String s = "FALLO en " + donde + ": " + sw;
+        log(s);
+        File archivo = new File(ctx.getFilesDir(), "fallo.txt");
+        if (archivo.length() > 65536) {
+            archivo.delete();
+        }
+        try (FileOutputStream f = new FileOutputStream(archivo, true)) {
+            f.write((s + "\n").getBytes(StandardCharsets.UTF_8));
+        } catch (Throwable ignored) {
+        }
+    }
+
+    String falloPrevio() {
+        File f = new File(ctx.getFilesDir(), "fallo.txt");
+        if (!f.exists()) {
+            return "";
+        }
+        try (InputStream in = new java.io.FileInputStream(f)) {
+            java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream();
+            byte[] b = new byte[8192];
+            int n;
+            while ((n = in.read(b)) > 0) {
+                bo.write(b, 0, n);
+            }
+            String s = new String(bo.toByteArray(), StandardCharsets.UTF_8);
+            return s.length() > 6000 ? s.substring(s.length() - 6000) : s;
+        } catch (Throwable t) {
+            return "";
+        }
+    }
+
+    void borrarFallos() {
+        new File(ctx.getFilesDir(), "fallo.txt").delete();
+    }
+
+    String registroReciente() {
+        File f = archivoRegistro();
+        if (!f.exists()) {
+            return "";
+        }
+        try (InputStream in = new java.io.FileInputStream(f)) {
+            java.io.ByteArrayOutputStream bo = new java.io.ByteArrayOutputStream();
+            byte[] b = new byte[8192];
+            int n;
+            while ((n = in.read(b)) > 0) {
+                bo.write(b, 0, n);
+            }
+            String s = new String(bo.toByteArray(), StandardCharsets.UTF_8);
+            return s.length() > 20000 ? s.substring(s.length() - 20000) : s;
+        } catch (Throwable t) {
+            return "";
+        }
     }
 
     File archivoRegistro() {
