@@ -17,10 +17,19 @@ android {
         }
     }
 
+    signingConfigs {
+        fantasma {
+            storeFile rootProject.file('firma/ivona_prueba.jks')
+            storePassword 'ivonaprueba'
+            keyAlias 'fantasma'
+            keyPassword 'ivonaprueba'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.fantasma
         }
     }
 
