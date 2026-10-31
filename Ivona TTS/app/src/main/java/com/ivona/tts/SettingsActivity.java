@@ -195,11 +195,18 @@ public class SettingsActivity extends Pantalla {
         Motor mo = Motor.get(this);
         armar("Ivona TTS", "Versión " + BuildInfo.nombreVersion(this));
 
-        seccion("Estado");
+        seccion("Probar la voz");
         filaEstado = filaInfo("Estado del motor", mo.estado());
-        fila("Probar la voz", "Lee una frase de ejemplo con tu configuración actual", this::probar);
+        fila("Escuchar una frase de prueba", "Lee una frase de ejemplo con tu configuración actual", this::probar);
 
-        seccion("Voz");
+        fila("Ir a los ajustes de texto a voz de Android", "Para elegir Ivona TTS como motor predeterminado", this::abrirAjustesTts);
+
+        seccion("Voces de Ivona");
+        int cuantas = Voces.instaladas(this).size();
+        fila("Descargar e instalar voces", cuantas == 0 ? "Ninguna voz instalada todavía" : cuantas == 1 ? "1 voz instalada" : cuantas + " voces instaladas", () -> startActivity(new Intent(this, MainActivity.class)));
+        agregarPreferida();
+
+        seccion("Velocidad, tono y volumen");
         Fila fVol = filaAbierta("Volumen de la voz", String.format("%,.0f", p.getFloat("default_volume", 100f)));
         fVol.vista.setOnClickListener(v -> dialogoDeslizador("Volumen de la voz", 100, p.getFloat("default_volume", 100f), "%,.0f", n -> {
             p.edit().putFloat("default_volume", n).apply();
@@ -221,14 +228,6 @@ public class SettingsActivity extends Pantalla {
                     breve("Ajustes de voz restablecidos");
                     construir();
                 }));
-
-        seccion("Voces");
-        int n = Voces.instaladas(this).size();
-        fila("Descargar e instalar voces", n == 0 ? "Ninguna voz instalada todavía" : n == 1 ? "1 voz instalada" : n + " voces instaladas", () -> startActivity(new Intent(this, MainActivity.class)));
-        agregarPreferida();
-
-        seccion("Lectura del texto");
-        fila("Ajustes de texto de lectura", "Emoji, números, enlaces y diccionario", () -> startActivity(new Intent(this, LecturaActivity.class)));
 
         seccion("Salida de audio");
         String[] valores = {"no", "apps", "todo"};
@@ -276,20 +275,27 @@ public class SettingsActivity extends Pantalla {
                 }));
         nota("Con el volumen multimedia, lo que piden los juegos y las aplicaciones suena por el volumen multimedia en lugar del de accesibilidad, y las grabadoras de pantalla pueden capturarlo.");
 
+        seccion("Lectura del texto");
+        fila("Ajustes de texto de lectura", "Emoji, números, enlaces y diccionario", () -> startActivity(new Intent(this, LecturaActivity.class)));
+
         seccion("Copia de seguridad");
         fila("Crear copia de seguridad", "Guarda todos tus ajustes y tu diccionario en un archivo en Descargas", this::crearCopia);
         fila("Restaurar copia de seguridad", "Elige un archivo de copia y recupera tus ajustes y tu diccionario", this::elegirCopia);
 
-        seccion("Herramientas");
+        seccion("Fallos y registro");
         nota("¿Tienes algún problema con el motor? Compárteme los fallos y te ayudo a solucionarlo.");
         boton("Compartir fallos del motor", v -> compartirFallos());
         interruptor("Registro detallado del motor", "Se aplica al reiniciar el motor; actívalo si vas a compartir los fallos", p.getBoolean("depurar", true), v -> p.edit().putBoolean("depurar", v).apply());
-        fila("Abrir ajustes de texto a voz de Android", null, this::abrirAjustesTts);
         fila("Copiar registro", "Copia el estado, los fallos guardados y el registro del motor", this::copiar);
         fila("Borrar fallos guardados", null, () -> {
             Motor.get(this).borrarFallos();
             breve("Fallos borrados");
         });
+
+        seccion("Acerca de");
+        filaInfo("Ivona TTS", "Versión " + BuildInfo.nombreVersion(this));
+        filaInfo("El proyecto", "Ivona TTS es una versión personal que revive el antiguo motor de voz Ivona para que funcione en teléfonos actuales de 64 bits. Trae las voces en español Conchita, de España, y Penélope, de Estados Unidos, que se descargan desde la propia aplicación. Es una idea desarrollada por Emmanuel, el Fantasma, dentro del proyecto de revivir motores antiguos para que no se pierdan. Las voces y la marca Ivona pertenecen a sus dueños originales; esta aplicación no está afiliada a ellos. Para no perderte novedades ni próximos lanzamientos, visita nuestro canal de YouTube.");
+        boton("Visitar el canal de YouTube", v -> abrirEnlace(ENLACE_YOUTUBE));
 
         seccion("Contáctame");
         filaInfo("Contáctame", "Si tienes alguna duda, inquietud, sugerencia o quieres hablar conmigo, contáctame.");
@@ -299,11 +305,6 @@ public class SettingsActivity extends Pantalla {
         seccion("Ayudar al proyecto");
         filaInfo("Ayudar al proyecto", "Si quieres apoyar el proyecto, tu aporte hace posible los próximos lanzamientos.");
         boton("Apoyar el proyecto", v -> abrirEnlace(ENLACE_PAYPAL));
-
-        seccion("Acerca de");
-        filaInfo("Ivona TTS", "Versión " + BuildInfo.nombreVersion(this));
-        filaInfo("El proyecto", "Ivona TTS es una versión personal que revive el antiguo motor de voz Ivona para que funcione en teléfonos actuales de 64 bits. Trae las voces en español Conchita, de España, y Penélope, de Estados Unidos, que se descargan desde la propia aplicación. Es una idea desarrollada por Emmanuel, el Fantasma, dentro del proyecto de revivir motores antiguos para que no se pierdan. Las voces y la marca Ivona pertenecen a sus dueños originales; esta aplicación no está afiliada a ellos. Para no perderte novedades ni próximos lanzamientos, visita nuestro canal de YouTube.");
-        boton("Visitar el canal de YouTube", v -> abrirEnlace(ENLACE_YOUTUBE));
     }
 
     private void agregarPreferida() {
