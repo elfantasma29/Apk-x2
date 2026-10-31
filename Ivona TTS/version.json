@@ -1,7 +1,7 @@
 {
-  "versionCode": 4,
-  "versionName": "0.3.0",
-  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/Ivona%20TTS/apk/IvonaTTS_v0.3.0.apk",
-  "sha256": "fde87d4a5ff231660135d09a2dcee0f22e365deaba9d11dc099dcf45e1ee7113",
-  "novedades": "Ivona TTS 0.3.0.\n\nNueva opción experimental: Aumentar respuesta del motor. Al activarla usa un segundo motor para repartir las frases largas, sube la prioridad de los hilos del motor, recorta los silencios de cada frase y deja de retener audio. Gasta más memoria y batería.\n\nTambién puedes iniciar una medición de latencia: mide cuánto tarda cada frase en sonar mientras usas el lector, y al detenerla guarda un archivo de texto en Descargas. No guarda lo que lee, solo su longitud.\n\nSi la aplicación te da algún fallo, compárteme el archivo desde Ajustes, Fallos y registro, Compartir fallos del motor."
+  "versionCode": 5,
+  "versionName": "0.3.1",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/Ivona%20TTS/apk/IvonaTTS_v0.3.1.apk",
+  "sha256": "ecdef76efc0e9e5df11dc625150319672cc0dce9a0bc7a9ab1340173633632fa",
+  "novedades": "Ivona TTS 0.3.1.\n\nNueva opción experimental: Fijar el motor en los núcleos rápidos. Mantiene el motor en los núcleos más potentes del procesador para que no empiece en los lentos. Está en Respuesta del motor. Para comparar, haz una medición con ella desactivada y otra activada.\n\nSi la aplicación te da algún fallo, compárteme el archivo desde Ajustes, Fallos y registro, Compartir fallos del motor."
 }
