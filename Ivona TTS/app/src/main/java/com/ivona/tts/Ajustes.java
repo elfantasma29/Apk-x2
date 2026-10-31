@@ -185,10 +185,14 @@ final class Ajustes {
 
     static String guardarEnDescargas(Context c, String json) throws Exception {
         String nombre = "IvonaTTS_copia_" + new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()) + ".json";
+        return guardarTexto(c, nombre, "application/json", json);
+    }
+
+    static String guardarTexto(Context c, String nombre, String mime, String json) throws Exception {
         ContentResolver cr = c.getContentResolver();
         ContentValues v = new ContentValues();
         v.put(MediaStore.Downloads.DISPLAY_NAME, nombre);
-        v.put(MediaStore.Downloads.MIME_TYPE, "application/json");
+        v.put(MediaStore.Downloads.MIME_TYPE, mime);
         v.put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
         v.put(MediaStore.Downloads.IS_PENDING, 1);
         Uri u = cr.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);

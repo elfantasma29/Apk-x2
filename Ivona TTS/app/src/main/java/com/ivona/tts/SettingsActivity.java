@@ -30,6 +30,7 @@ public class SettingsActivity extends Pantalla {
     private SharedPreferences p;
     private TextToSpeech prueba;
     private Fila filaEstado;
+    private Fila filaMedicion;
     private boolean arrancando = false;
     private static final String ENLACE_PAYPAL = "https://paypal.me/TutorialesParaCiegos";
     private static final String ENLACE_WHATSAPP = "https://wa.me/529844315424";
@@ -275,6 +276,26 @@ public class SettingsActivity extends Pantalla {
                 }));
         nota("Con el volumen multimedia, lo que piden los juegos y las aplicaciones suena por el volumen multimedia en lugar del de accesibilidad, y las grabadoras de pantalla pueden capturarlo.");
 
+        seccion("Respuesta del motor (experimental)");
+        interruptor("Aumentar respuesta del motor", "Reduce la latencia: usa un segundo motor para repartir las frases largas, sube la prioridad de los hilos, recorta los silencios y no retiene audio. Gasta más memoria y batería", p.getBoolean("respuesta_rapida", false), v -> {
+            p.edit().putBoolean("respuesta_rapida", v).apply();
+            breve(v ? "Respuesta del motor aumentada" : "Respuesta del motor normal");
+            if (!v) {
+                Motor.get(this).apagar();
+            }
+        });
+        if (Medicion.activa(this)) {
+            filaMedicion = filaInfo("Medición de latencia", Medicion.estadoTexto(this));
+            boton("Detener medición y guardar en Descargas", v -> detenerMedicion());
+        } else {
+            fila("Iniciar medición de latencia", "Mide cuánto tarda cada frase en sonar mientras usas el lector. Al detenerla se guarda un archivo de texto en Descargas", () -> {
+                Medicion.iniciar(this);
+                breve("Medición iniciada. Usa el lector con normalidad y vuelve aquí para detenerla");
+                construir();
+            });
+        }
+        nota("Es una función experimental. Para comparar, mide un rato con la opción desactivada y otro rato con ella activada.");
+
         seccion("Lectura del texto");
         fila("Ajustes de texto de lectura", "Emoji, números, enlaces y diccionario", () -> startActivity(new Intent(this, LecturaActivity.class)));
 
@@ -419,6 +440,33 @@ public class SettingsActivity extends Pantalla {
         String fp = mo.falloPrevio();
         cm.setPrimaryClip(ClipData.newPlainText("registro", "Estado: " + mo.estado() + "\n" + (fp.length() > 0 ? "FALLOS GUARDADOS:\n" + fp + "\n---\n" : "") + mo.registroReciente()));
         breve("Registro copiado");
+    }
+
+    private void detenerMedicion() {
+        final Context c = getApplicationContext();
+        new Thread(() -> {
+            try {
+                String[] r = Medicion.detener(c);
+                ui.post(() -> {
+                    construir();
+                    new AlertDialog.Builder(this)
+                            .setTitle("Medición guardada")
+                            .setMessage("Se guardó en la carpeta Descargas con el nombre " + r[0] + ". " + r[1])
+                            .setPositiveButton("Aceptar", null)
+                            .show();
+                });
+            } catch (Throwable t) {
+                Motor.get(c).guardarFallo("medición", t);
+                ui.post(() -> {
+                    construir();
+                    new AlertDialog.Builder(this)
+                            .setTitle("No se pudo guardar la medición")
+                            .setMessage(String.valueOf(t.getMessage()))
+                            .setPositiveButton("Aceptar", null)
+                            .show();
+                });
+            }
+        }, "detener-medicion").start();
     }
 
     private void crearCopia() {

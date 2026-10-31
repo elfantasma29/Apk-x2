@@ -31,6 +31,43 @@ final class Servidor {
     private volatile boolean vivo;
     private volatile boolean listo;
     String detalles = "";
+    static volatile boolean prioridadTotal = false;
+    volatile boolean ocupado = false;
+    private int pid = -1;
+    private long ultimaPrioridad = 0;
+    volatile String resultadoPrioridad = "";
+
+    void priorizar() {
+        if (pid <= 0) {
+            return;
+        }
+        long ahora = System.currentTimeMillis();
+        if (ahora - ultimaPrioridad < 5000) {
+            return;
+        }
+        ultimaPrioridad = ahora;
+        int bien = 0;
+        int total = 0;
+        try {
+            File[] hilos = new File("/proc/" + pid + "/task").listFiles();
+            if (hilos != null) {
+                for (File h : hilos) {
+                    total++;
+                    try {
+                        android.os.Process.setThreadPriority(Integer.parseInt(h.getName()), android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+                        bien++;
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        String r = "Prioridad alta en " + bien + " de " + total + " hilos del motor";
+        if (!r.equals(resultadoPrioridad)) {
+            resultadoPrioridad = r;
+            anotar(r);
+        }
+    }
 
     Servidor(List<String> comando, File registro) {
         this.comando = comando;
@@ -79,7 +116,8 @@ final class Servidor {
             try {
                 java.lang.reflect.Field fp = p.getClass().getDeclaredField("pid");
                 fp.setAccessible(true);
-                android.os.Process.setThreadPriority(fp.getInt(p), android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
+                pid = fp.getInt(p);
+                android.os.Process.setThreadPriority(pid, android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
             } catch (Throwable ignored) {
             }
             entrada = p.getOutputStream();
@@ -118,6 +156,9 @@ final class Servidor {
                 detalles = f.length > 2 ? f[2] : "";
                 listo = true;
                 vivo = true;
+                if (prioridadTotal) {
+                    priorizar();
+                }
                 return null;
             }
             cerrar();
@@ -168,6 +209,10 @@ final class Servidor {
             if (!vivo()) {
                 return -2;
             }
+            if (prioridadTotal) {
+                priorizar();
+            }
+            ocupado = true;
             try {
                 byte[] t = texto.getBytes(StandardCharsets.UTF_8);
                 byte[] cab = ("SPEAK\t" + t.length + "\n").getBytes(StandardCharsets.UTF_8);
@@ -209,6 +254,8 @@ final class Servidor {
                 vivo = false;
                 anotar("Fallo al hablar: " + e);
                 return -4;
+            } finally {
+                ocupado = false;
             }
         }
     }

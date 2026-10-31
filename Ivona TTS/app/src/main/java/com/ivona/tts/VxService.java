@@ -243,6 +243,8 @@ public class VxService extends TextToSpeechService {
         final boolean reserva;
         final double estimado;
         long bytes = 0;
+        long tPrimeroMotor = 0;
+        long tPrimeroSalida = 0;
         boolean iniciado = false;
         boolean fallo = false;
         private final java.util.ArrayList<byte[]> pendientes = new java.util.ArrayList<>();
@@ -260,6 +262,9 @@ public class VxService extends TextToSpeechService {
         }
 
         private boolean salir(byte[] datos, int desde, int largo) {
+            if (tPrimeroSalida == 0) {
+                tPrimeroSalida = System.nanoTime();
+            }
             if (rep != null) {
                 return rep.escribir(datos, desde, largo);
             }
@@ -314,6 +319,9 @@ public class VxService extends TextToSpeechService {
             if (largo <= 0) {
                 return;
             }
+            if (tPrimeroMotor == 0) {
+                tPrimeroMotor = System.nanoTime();
+            }
             bytes += largo;
             boolean ok;
             if (!reserva || liberado) {
@@ -365,9 +373,12 @@ public class VxService extends TextToSpeechService {
 
     private void sintetizar(SynthesisRequest r, SynthesisCallback cb) {
         final Motor m = m();
+        final long t0 = System.nanoTime();
         m.paro = false;
         paradoPorCliente = false;
         SharedPreferences p = prefs();
+        final boolean rapido = p.getBoolean("respuesta_rapida", false);
+        Servidor.prioridadTotal = rapido;
         CharSequence cs = r.getCharSequenceText();
         String texto = cs == null ? "" : cs.toString();
         texto = texto.replaceAll("[\\p{Cntrl}&&[^\\n\\t]]", " ").trim();
@@ -408,6 +419,11 @@ public class VxService extends TextToSpeechService {
             cb.error();
             return;
         }
+        if (rapido) {
+            m.prepararSegundo(v);
+        }
+        final long tListo = System.nanoTime();
+        final int[] trozos = {1};
         final int max = Math.max(1024, cb.getMaxBufferSize());
         Reproductor rep = null;
         if (usarMultimedia(r, cb, p)) {
@@ -420,16 +436,18 @@ public class VxService extends TextToSpeechService {
             }
         }
         try {
-            boolean reserva = p.getBoolean("reserva_audio", true);
+            boolean reserva = p.getBoolean("reserva_audio", true) && !rapido;
             Flujo flujo = new Flujo(cb, rep, max, reserva, texto.length());
-            int rc = m.hablar(envio, flujo);
+            ultimoFlujo = flujo;
+            int rc = rapido ? m.hablarRapido(envio, flujo, trozos) : m.hablar(envio, flujo);
             if (rc != 0 && flujo.bytes == 0 && !paradoPorCliente) {
                 m.log("Síntesis con error " + rc + "; se reinicia el motor y se reintenta una vez");
                 m.reiniciarSuave();
                 String e2 = m.asegurar(v);
                 if (e2 == null) {
                     flujo = new Flujo(cb, rep, max, reserva, texto.length());
-                    rc = m.hablar(envio, flujo);
+                    ultimoFlujo = flujo;
+                    rc = rapido ? m.hablarRapido(envio, flujo, trozos) : m.hablar(envio, flujo);
                 }
             }
             if (paradoPorCliente) {
@@ -459,6 +477,30 @@ public class VxService extends TextToSpeechService {
                 rep.parar();
                 reproductor = null;
             }
+            try {
+                if (Medicion.activa(this) && ultimoFlujo != null) {
+                    Flujo f = ultimoFlujo;
+                    ultimoFlujo = null;
+                    Medicion.Muestra mu = new Medicion.Muestra();
+                    mu.hora = System.currentTimeMillis();
+                    mu.caracteres = texto.length();
+                    mu.trozos = trozos[0];
+                    mu.rapido = rapido;
+                    mu.paradaPorCliente = paradoPorCliente;
+                    mu.motorMs = (tListo - t0) / 1000000L;
+                    mu.primerMotorMs = f.tPrimeroMotor == 0 ? 0 : (f.tPrimeroMotor - t0) / 1000000L;
+                    mu.primerSonidoMs = f.tPrimeroSalida == 0 ? 0 : (f.tPrimeroSalida - t0) / 1000000L;
+                    mu.totalMs = (System.nanoTime() - t0) / 1000000L;
+                    mu.audioMs = f.bytes / 2.0 / FRECUENCIA * 1000.0;
+                    if (f.bytes > 0) {
+                        Medicion.registrar(this, mu);
+                    }
+                }
+            } catch (Throwable t) {
+                m.guardarFallo("medición", t);
+            }
         }
     }
+
+    private volatile Flujo ultimoFlujo;
 }

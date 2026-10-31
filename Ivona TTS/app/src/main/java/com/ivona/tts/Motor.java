@@ -235,16 +235,17 @@ final class Motor {
         return destino;
     }
 
-    synchronized String asegurar(Voces.Voz v) {
-        if (servidor != null && actual == v && servidor.vivo()) {
-            return null;
-        }
-        detenerProceso();
+    private Servidor segundo;
+    private Voces.Voz actualSegundo;
+    private boolean arrancandoSegundo = false;
+
+    private Servidor abrir(Voces.Voz v, String[] error) {
         try {
             File guest = preparar();
             File voz = Voces.carpeta(ctx, v);
             if (!new File(voz, ".listo").exists()) {
-                return "La voz " + v.nombre + " no está instalada.";
+                error[0] = "La voz " + v.nombre + " no está instalada.";
+                return null;
             }
             File qemu = new File(ctx.getApplicationInfo().nativeLibraryDir, "libqemu.so");
             List<String> cmd = new ArrayList<>();
@@ -260,14 +261,95 @@ final class Motor {
             Servidor s = new Servidor(cmd, archivoRegistro());
             String r = s.iniciar();
             if (r != null) {
-                return r;
+                error[0] = r;
+                return null;
             }
-            servidor = s;
-            actual = v;
-            return null;
+            return s;
         } catch (Throwable t) {
-            return "No se pudo preparar el motor: " + t;
+            error[0] = "No se pudo preparar el motor: " + t;
+            return null;
         }
+    }
+
+    synchronized String asegurar(Voces.Voz v) {
+        if (servidor != null && actual == v && servidor.vivo()) {
+            return null;
+        }
+        detenerProceso();
+        String[] e = new String[1];
+        Servidor s = abrir(v, e);
+        if (s == null) {
+            return e[0];
+        }
+        servidor = s;
+        actual = v;
+        return null;
+    }
+
+    void prepararSegundo(final Voces.Voz v) {
+        synchronized (this) {
+            if (arrancandoSegundo || bajaMemoria(ctx)) {
+                return;
+            }
+            if (segundo != null && segundo.vivo() && actualSegundo == v) {
+                return;
+            }
+            arrancandoSegundo = true;
+        }
+        Thread t = new Thread(() -> {
+            try {
+                String[] e = new String[1];
+                Servidor s = abrir(v, e);
+                synchronized (Motor.this) {
+                    if (s != null && actual == v) {
+                        if (segundo != null) {
+                            segundo.cerrar();
+                        }
+                        segundo = s;
+                        actualSegundo = v;
+                    } else if (s != null) {
+                        s.cerrar();
+                    }
+                }
+            } finally {
+                synchronized (Motor.this) {
+                    arrancandoSegundo = false;
+                }
+            }
+        }, "ivona-segundo");
+        t.setDaemon(true);
+        t.start();
+    }
+
+    boolean segundoListo() {
+        synchronized (this) {
+            return segundo != null && segundo.vivo() && actualSegundo == actual;
+        }
+    }
+
+    int hablarRapido(String texto, Servidor.Salida salida, int[] trozos) {
+        Servidor a;
+        Servidor b;
+        synchronized (this) {
+            a = servidor;
+            b = segundo != null && segundo.vivo() && actualSegundo == actual ? segundo : null;
+        }
+        if (a == null) {
+            return -1;
+        }
+        List<String> partes = b == null ? java.util.Collections.singletonList(texto) : Rapido.dividir(texto);
+        if (trozos != null) {
+            trozos[0] = partes.size();
+        }
+        return Rapido.ejecutar(a, b, partes, salida);
+    }
+
+    String prioridadResultado() {
+        Servidor s;
+        synchronized (this) {
+            s = servidor;
+        }
+        return s == null ? "" : s.resultadoPrioridad;
     }
 
     String detalles() {
@@ -294,14 +376,26 @@ final class Motor {
         if (s != null) {
             s.detener();
         }
+        Servidor b;
+        synchronized (this) {
+            b = segundo;
+        }
+        if (b != null && b.ocupado) {
+            b.detener();
+        }
     }
 
     synchronized void detenerProceso() {
         if (servidor != null) {
             servidor.cerrar();
         }
+        if (segundo != null) {
+            segundo.cerrar();
+        }
         servidor = null;
+        segundo = null;
         actual = null;
+        actualSegundo = null;
     }
 
     synchronized void olvidar(Voces.Voz v) {

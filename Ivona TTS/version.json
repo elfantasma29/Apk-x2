@@ -1,7 +1,7 @@
 {
-  "versionCode": 3,
-  "versionName": "0.2.1",
-  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/Ivona%20TTS/apk/IvonaTTS_v0.2.1.apk",
-  "sha256": "0c4106b130cfb575f73f54fde23e4245e4e226dee5d6b416ada7945f8c910f98",
-  "novedades": "Ivona TTS 0.2.1.\n\nLa pantalla de ajustes se reorganizó siguiendo el orden de la aplicación original de Ivona: primero probar la voz, luego las voces, la velocidad, el tono y el volumen, la salida de audio y la lectura del texto. Al final quedan los fallos, la copia de seguridad, el acerca de, el contacto y la ayuda al proyecto.\n\nSi la aplicación te da algún fallo, compárteme el archivo desde Ajustes, Fallos y registro, Compartir fallos del motor."
+  "versionCode": 4,
+  "versionName": "0.3.0",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/Ivona%20TTS/apk/IvonaTTS_v0.3.0.apk",
+  "sha256": "fde87d4a5ff231660135d09a2dcee0f22e365deaba9d11dc099dcf45e1ee7113",
+  "novedades": "Ivona TTS 0.3.0.\n\nNueva opción experimental: Aumentar respuesta del motor. Al activarla usa un segundo motor para repartir las frases largas, sube la prioridad de los hilos del motor, recorta los silencios de cada frase y deja de retener audio. Gasta más memoria y batería.\n\nTambién puedes iniciar una medición de latencia: mide cuánto tarda cada frase en sonar mientras usas el lector, y al detenerla guarda un archivo de texto en Descargas. No guarda lo que lee, solo su longitud.\n\nSi la aplicación te da algún fallo, compárteme el archivo desde Ajustes, Fallos y registro, Compartir fallos del motor."
 }
