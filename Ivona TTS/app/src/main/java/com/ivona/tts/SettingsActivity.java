@@ -284,6 +284,11 @@ public class SettingsActivity extends Pantalla {
                 Motor.get(this).apagar();
             }
         });
+        interruptor("Ejecutor rápido del motor", "Ejecuta el motor con un traductor más rápido que QEMU, que convierte a código nativo las partes que más trabajan. Si no funciona en tu teléfono, vuelve a QEMU solo", p.getBoolean("ejecutor_rapido", false), v -> {
+            p.edit().putBoolean("ejecutor_rapido", v).apply();
+            breve(v ? "Ejecutor rápido activado" : "Ejecutor rápido desactivado");
+            Motor.get(this).apagar();
+        });
         interruptor("Fijar el motor en los núcleos rápidos", "Mantiene el motor en los núcleos más potentes del procesador para que no empiece en los lentos. Compáralo con la medición", p.getBoolean("nucleos_rapidos", false), v -> {
             p.edit().putBoolean("nucleos_rapidos", v).apply();
             breve(v ? "Motor fijado en los núcleos rápidos" : "Motor sin fijar");

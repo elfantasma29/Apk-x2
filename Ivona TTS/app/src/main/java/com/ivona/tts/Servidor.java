@@ -153,7 +153,7 @@ final class Servidor {
         }
     }
 
-    private void anotar(String linea) {
+    void anotar(String linea) {
         synchronized (errores) {
             errores.addLast(linea);
             while (errores.size() > 25) {

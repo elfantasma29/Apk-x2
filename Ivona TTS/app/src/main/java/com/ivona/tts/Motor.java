@@ -235,6 +235,7 @@ final class Motor {
         return destino;
     }
 
+    volatile String ejecutorActual = "";
     private Servidor segundo;
     private Voces.Voz actualSegundo;
     private boolean arrancandoSegundo = false;
@@ -247,24 +248,38 @@ final class Motor {
                 error[0] = "La voz " + v.nombre + " no está instalada.";
                 return null;
             }
-            File qemu = new File(ctx.getApplicationInfo().nativeLibraryDir, "libqemu.so");
-            List<String> cmd = new ArrayList<>();
-            cmd.add(qemu.getAbsolutePath());
-            cmd.add("-L");
-            cmd.add(new File(guest, "sysroot").getAbsolutePath());
-            cmd.add("-E");
-            cmd.add("LD_LIBRARY_PATH=" + new File(guest, "lib").getAbsolutePath());
-            cmd.add(new File(guest, "ivona_server").getAbsolutePath());
-            cmd.add(new File(guest, "lib/libIvonaProxy.so").getAbsolutePath());
-            cmd.add(new File(voz, "lib").getAbsolutePath());
-            cmd.add(new File(voz, "data").getAbsolutePath());
-            Servidor s = new Servidor(cmd, archivoRegistro());
-            String r = s.iniciar();
-            if (r != null) {
-                error[0] = r;
-                return null;
+            boolean rapido = Ajustes.p(ctx).getBoolean("ejecutor_rapido", false);
+            String[] exes = rapido ? new String[]{"libdynrun.so", "libqemu.so"} : new String[]{"libqemu.so"};
+            String ultimo = null;
+            for (String exe : exes) {
+                File ejecutable = new File(ctx.getApplicationInfo().nativeLibraryDir, exe);
+                if (!ejecutable.exists()) {
+                    ultimo = "No existe " + exe;
+                    continue;
+                }
+                List<String> cmd = new ArrayList<>();
+                cmd.add(ejecutable.getAbsolutePath());
+                cmd.add("-L");
+                cmd.add(new File(guest, "sysroot").getAbsolutePath());
+                cmd.add("-E");
+                cmd.add("LD_LIBRARY_PATH=" + new File(guest, "lib").getAbsolutePath());
+                cmd.add(new File(guest, "ivona_server").getAbsolutePath());
+                cmd.add(new File(guest, "lib/libIvonaProxy.so").getAbsolutePath());
+                cmd.add(new File(voz, "lib").getAbsolutePath());
+                cmd.add(new File(voz, "data").getAbsolutePath());
+                Servidor s = new Servidor(cmd, archivoRegistro());
+                String r = s.iniciar();
+                if (r == null) {
+                    ejecutorActual = exe;
+                    if (rapido && exe.equals("libqemu.so")) {
+                        s.anotar("El ejecutor rápido falló y se usa QEMU: " + ultimo);
+                    }
+                    return s;
+                }
+                ultimo = r;
             }
-            return s;
+            error[0] = ultimo;
+            return null;
         } catch (Throwable t) {
             error[0] = "No se pudo preparar el motor: " + t;
             return null;

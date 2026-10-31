@@ -4,19 +4,24 @@ import lift
 S='/tmp/claude-0/-home-claude/b9d058b9-b75d-5392-bcd2-a9313b879551/scratchpad/'
 MINPCT=float(sys.argv[1]) if len(sys.argv)>1 else 0.05
 MAXFN=int(sys.argv[2]) if len(sys.argv)>2 else 400
-libs=[('voice','libvoice_es_conchita.so'),('eng','libttsivonavoice.so')]
-perf=collections.defaultdict(collections.Counter)
-for l in open(S+'prof.txt'):
-    a=l.split()
-    if a[0]=='TOTAL': continue
-    perf[' '.join(a[:-2]).split('/')[-1]][int(a[-2],16)]+=int(a[-1])
-T=sum(sum(c.values()) for c in perf.values())
+libs=[('vc','conchita/lib/libvoice_es_conchita.so','prof_con.txt'),('vp','penelope/lib/libvoice_es_us_penelope.so','prof_pen.txt'),('eng','conchita/lib/libttsivonavoice.so','prof_con.txt+prof_pen.txt')]
+def cargar_perf(archivos):
+    p=collections.defaultdict(collections.Counter)
+    for f in archivos.split('+'):
+        for l in open(S+f):
+            a=l.split()
+            if a[0]=='TOTAL': continue
+            p[' '.join(a[:-2]).split('/')[-1]][int(a[-2],16)]+=int(a[-1])
+    return p
 PRE=open('/home/claude/dyn/lift/prelude.h').read()
 out=[PRE]
 tabla=[]
 resumen=[]
-for lid,fn in libs:
-    lib=lift.Lib(S+'simapp/voces/conchita/lib/'+fn,fn)
+for lid,rel,pf in libs:
+    fn=rel.split('/')[-1]
+    perf=cargar_perf(pf)
+    T=sum(sum(c.values()) for c in perf.values())
+    lib=lift.Lib(S+'simapp/voces/'+rel,fn)
     lift.PFX='fn_%s_'%lid
     base,off,size=lib.text
     entries=set()

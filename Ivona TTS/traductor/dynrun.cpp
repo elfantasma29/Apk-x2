@@ -349,7 +349,8 @@ void Hilo::CallSVC(u32 swi) {
                 ssize_t nn = readlink(l, b, sizeof b - 1);
                 if (nn > 0) {
                     b[nn] = 0; std::string pth = b; size_t sl = pth.rfind('/'); std::string bn = sl == std::string::npos ? pth : pth.substr(sl + 1);
-                    if (a5 == 0 && (bn == "libvoice_es_conchita.so" || bn == "libttsivonavoice.so")) { std::lock_guard<std::mutex> lk(hook_lock); hot_bases[bn] = addr; }
+                    bool conocida = false; for (const HotFn* hf = hot_table; hf->lib; hf++) if (bn == hf->lib) { conocida = true; break; }
+                    if (a5 == 0 && conocida) { std::lock_guard<std::mutex> lk(hook_lock); hot_bases[bn] = addr; }
                 }
             }
         }
@@ -625,7 +626,7 @@ int main(int argc, char** argv) {
     arena = (u8*)mmap(nullptr, tam, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE, -1, 0);
     if (arena == MAP_FAILED) { perror("arena"); return 1; }
     HOT_MEM = arena;
-    hot_on = getenv("DYN_HOT") && atoi(getenv("DYN_HOT")) > 0;
+    hot_on = !getenv("DYN_HOT") || atoi(getenv("DYN_HOT")) > 0;
     if (getenv("DYN_HOT_MAX")) hot_max = (size_t)atoi(getenv("DYN_HOT_MAX"));
     monitor = new Dynarmic::ExclusiveMonitor(16);
 
