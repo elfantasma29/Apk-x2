@@ -146,6 +146,7 @@ final class Medicion {
         sb.append("Dispositivo: ").append(Build.MANUFACTURER).append(' ').append(Build.MODEL).append(", Android ").append(Build.VERSION.RELEASE).append('\n');
         sb.append("Inicio: ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date(inicio))).append('\n');
         sb.append("Fin: ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date())).append('\n');
+        sb.append("Fijar el motor en los núcleos rápidos ahora: ").append(a.getBoolean("nucleos_rapidos", false) ? "activado" : "desactivado").append('\n');
         sb.append("Aumentar respuesta del motor ahora: ").append(a.getBoolean("respuesta_rapida", false) ? "activado" : "desactivado").append('\n');
         sb.append("Evitar cortes en voces pesadas: ").append(a.getBoolean("reserva_audio", true) ? "activado" : "desactivado").append('\n');
         sb.append("Volumen multimedia: ").append(Ajustes.modoMultimedia(a)).append('\n');

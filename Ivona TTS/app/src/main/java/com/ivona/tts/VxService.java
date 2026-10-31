@@ -379,6 +379,7 @@ public class VxService extends TextToSpeechService {
         SharedPreferences p = prefs();
         final boolean rapido = p.getBoolean("respuesta_rapida", false);
         Servidor.prioridadTotal = rapido;
+        Servidor.fijarNucleos = p.getBoolean("nucleos_rapidos", false);
         CharSequence cs = r.getCharSequenceText();
         String texto = cs == null ? "" : cs.toString();
         texto = texto.replaceAll("[\\p{Cntrl}&&[^\\n\\t]]", " ").trim();

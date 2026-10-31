@@ -284,6 +284,11 @@ public class SettingsActivity extends Pantalla {
                 Motor.get(this).apagar();
             }
         });
+        interruptor("Fijar el motor en los núcleos rápidos", "Mantiene el motor en los núcleos más potentes del procesador para que no empiece en los lentos. Compáralo con la medición", p.getBoolean("nucleos_rapidos", false), v -> {
+            p.edit().putBoolean("nucleos_rapidos", v).apply();
+            breve(v ? "Motor fijado en los núcleos rápidos" : "Motor sin fijar");
+            Motor.get(this).apagar();
+        });
         if (Medicion.activa(this)) {
             filaMedicion = filaInfo("Medición de latencia", Medicion.estadoTexto(this));
             boton("Detener medición y guardar en Descargas", v -> detenerMedicion());
