@@ -1,7 +1,7 @@
 {
-  "versionCode": 7,
-  "versionName": "2.0",
-  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/Ivona%20TTS/apk/IvonaTTS_v2.0.apk",
-  "sha256": "a95f0784191b2232cbcabd5fb9ada94c6d21ec160025a97260c56206fb647590",
-  "novedades": "Ivona TTS 2.0.\n\nPrimera versión pública. El motor ahora usa por defecto un ejecutor propio mucho más rápido, y QEMU queda como respaldo interno si el rápido no funciona en tu teléfono.\n\nNuevo: sección Avisos, con los mensajes del desarrollador, y un diálogo de bienvenida.\n\nAjustes reorganizados y opciones experimentales eliminadas.\n\nSi la aplicación te da algún fallo, compárteme el archivo desde Ajustes, Fallos y registro, Compartir fallos del motor."
+  "versionCode": 8,
+  "versionName": "2.1",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/Ivona%20TTS/apk/IvonaTTS_v2.1.apk",
+  "sha256": "38c7afe4b07c29bc7057848317ebc735fc883be01976656fb125a7bdb35db8c6",
+  "novedades": "Ivona TTS 2.1.\n\nVersión de prueba de actualización. No cambia nada del funcionamiento respecto a la 2.0: sirve para comprobar que la actualización desde la aplicación se descarga e instala bien.\n\nSi la actualización te funcionó, avísame. Si algo falló, compárteme el fallo desde Ajustes, Fallos y registro."
 }
