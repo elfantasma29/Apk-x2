@@ -1,0 +1,11 @@
+{
+  "mensajes": [
+    {
+      "id": 1,
+      "fecha": "31 de octubre de 2026",
+      "titulo": "Aviso importante: los lanzamientos se detendrán",
+      "importante": true,
+      "texto": "Hola. Este es un proyecto que revive los motores de voz antiguos, y en esta ocasión tenemos a Ivona. Un aviso importante: los lanzamientos se detendrán hasta reunir los fondos necesarios para los próximos cuatro lanzamientos. Retomaremos cuando lleguen las dos primeras donaciones, sin importar la cantidad. Gracias por tu apoyo y tu paciencia."
+    }
+  ]
+}

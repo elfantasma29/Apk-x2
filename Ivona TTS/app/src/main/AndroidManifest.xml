@@ -44,6 +44,10 @@
             android:label="Voces de Ivona"
             android:exported="false"/>
         <activity
+            android:name=".AvisosActivity"
+            android:label="Avisos"
+            android:exported="false"/>
+        <activity
             android:name=".LecturaActivity"
             android:label="Ajustes de texto de lectura"
             android:exported="false"/>

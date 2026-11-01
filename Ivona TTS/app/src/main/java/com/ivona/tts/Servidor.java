@@ -31,108 +31,8 @@ final class Servidor {
     private volatile boolean vivo;
     private volatile boolean listo;
     String detalles = "";
-    static volatile boolean prioridadTotal = false;
     volatile boolean ocupado = false;
     private int pid = -1;
-    private long ultimaPrioridad = 0;
-    volatile String resultadoPrioridad = "";
-    static volatile boolean fijarNucleos = false;
-    private long ultimaFijacion = 0;
-    private static String mascaraRapida;
-    volatile String resultadoNucleos = "";
-
-    private static synchronized String mascaraRapida() {
-        if (mascaraRapida != null) {
-            return mascaraRapida;
-        }
-        int n = Runtime.getRuntime().availableProcessors();
-        int[] cap = new int[n];
-        int max = 0;
-        for (int i = 0; i < n; i++) {
-            try (java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader("/sys/devices/system/cpu/cpu" + i + "/cpu_capacity"))) {
-                cap[i] = Integer.parseInt(br.readLine().trim());
-            } catch (Throwable e) {
-                cap[i] = 0;
-            }
-            if (cap[i] > max) {
-                max = cap[i];
-            }
-        }
-        long m = 0;
-        int usados = 0;
-        for (int i = 0; i < n; i++) {
-            if (max > 0 && cap[i] == max) {
-                m |= 1L << i;
-                usados++;
-            }
-        }
-        mascaraRapida = (usados == 0 || usados == n) ? "" : Long.toHexString(m);
-        return mascaraRapida;
-    }
-
-    void fijar() {
-        if (pid <= 0) {
-            return;
-        }
-        long ahora = System.currentTimeMillis();
-        if (ahora - ultimaFijacion < 5000) {
-            return;
-        }
-        ultimaFijacion = ahora;
-        String r;
-        String m = mascaraRapida();
-        if (m.isEmpty()) {
-            r = "No hay núcleos rápidos distintos que fijar";
-        } else {
-            int rc;
-            try {
-                java.lang.Process p = new ProcessBuilder("/system/bin/taskset", "-a", "-p", m, String.valueOf(pid)).redirectErrorStream(true).start();
-                java.io.InputStream in = p.getInputStream();
-                while (in.read() >= 0) {
-                }
-                rc = p.waitFor();
-            } catch (Throwable e) {
-                rc = -1;
-            }
-            r = rc == 0 ? "Motor fijado en los núcleos rápidos (máscara " + m + ")" : "No se pudo fijar el motor en los núcleos rápidos (código " + rc + ")";
-        }
-        if (!r.equals(resultadoNucleos)) {
-            resultadoNucleos = r;
-            anotar(r);
-        }
-    }
-
-    void priorizar() {
-        if (pid <= 0) {
-            return;
-        }
-        long ahora = System.currentTimeMillis();
-        if (ahora - ultimaPrioridad < 5000) {
-            return;
-        }
-        ultimaPrioridad = ahora;
-        int bien = 0;
-        int total = 0;
-        try {
-            File[] hilos = new File("/proc/" + pid + "/task").listFiles();
-            if (hilos != null) {
-                for (File h : hilos) {
-                    total++;
-                    try {
-                        android.os.Process.setThreadPriority(Integer.parseInt(h.getName()), android.os.Process.THREAD_PRIORITY_URGENT_AUDIO);
-                        bien++;
-                    } catch (Throwable ignored) {
-                    }
-                }
-            }
-        } catch (Throwable ignored) {
-        }
-        String r = "Prioridad alta en " + bien + " de " + total + " hilos del motor";
-        if (!r.equals(resultadoPrioridad)) {
-            resultadoPrioridad = r;
-            anotar(r);
-        }
-    }
 
     Servidor(List<String> comando, File registro) {
         this.comando = comando;
@@ -221,12 +121,6 @@ final class Servidor {
                 detalles = f.length > 2 ? f[2] : "";
                 listo = true;
                 vivo = true;
-                if (prioridadTotal) {
-                    priorizar();
-                }
-                if (fijarNucleos) {
-                    fijar();
-                }
                 return null;
             }
             cerrar();
@@ -276,12 +170,6 @@ final class Servidor {
         synchronized (uso) {
             if (!vivo()) {
                 return -2;
-            }
-            if (prioridadTotal) {
-                priorizar();
-            }
-            if (fijarNucleos) {
-                fijar();
             }
             ocupado = true;
             try {

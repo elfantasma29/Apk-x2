@@ -74,6 +74,10 @@ final class Motor {
         detenerProceso();
     }
 
+    private android.content.SharedPreferences prefsEstado() {
+        return ctx.getSharedPreferences("estado", Context.MODE_PRIVATE);
+    }
+
     synchronized String estado() {
         if (servidor != null && servidor.vivo()) {
             return "Motor en marcha. Voz " + (actual == null ? "" : actual.nombre) + " " + servidor.detalles;
@@ -236,9 +240,6 @@ final class Motor {
     }
 
     volatile String ejecutorActual = "";
-    private Servidor segundo;
-    private Voces.Voz actualSegundo;
-    private boolean arrancandoSegundo = false;
 
     private Servidor abrir(Voces.Voz v, String[] error) {
         try {
@@ -248,8 +249,7 @@ final class Motor {
                 error[0] = "La voz " + v.nombre + " no está instalada.";
                 return null;
             }
-            boolean rapido = Ajustes.p(ctx).getBoolean("ejecutor_rapido", false);
-            String[] exes = rapido ? new String[]{"libdynrun.so", "libqemu.so"} : new String[]{"libqemu.so"};
+            String[] exes = {"libdynrun.so", "libqemu.so"};
             String ultimo = null;
             for (String exe : exes) {
                 File ejecutable = new File(ctx.getApplicationInfo().nativeLibraryDir, exe);
@@ -271,13 +271,16 @@ final class Motor {
                 String r = s.iniciar();
                 if (r == null) {
                     ejecutorActual = exe;
-                    if (rapido && exe.equals("libqemu.so")) {
-                        s.anotar("El ejecutor rápido falló y se usa QEMU: " + ultimo);
+                    if (exe.equals("libqemu.so")) {
+                        s.anotar("Se usa el ejecutor de respaldo: " + ultimo);
                     }
+                    prefsEstado().edit().remove("motor_error").apply();
                     return s;
                 }
                 ultimo = r;
             }
+            log("Motor no iniciado: " + ultimo);
+            prefsEstado().edit().putString("motor_error", ultimo == null ? "Sin detalles" : ultimo).apply();
             error[0] = ultimo;
             return null;
         } catch (Throwable t) {
@@ -301,77 +304,6 @@ final class Motor {
         return null;
     }
 
-    void prepararSegundo(final Voces.Voz v) {
-        synchronized (this) {
-            if (arrancandoSegundo || bajaMemoria(ctx)) {
-                return;
-            }
-            if (segundo != null && segundo.vivo() && actualSegundo == v) {
-                return;
-            }
-            arrancandoSegundo = true;
-        }
-        Thread t = new Thread(() -> {
-            try {
-                String[] e = new String[1];
-                Servidor s = abrir(v, e);
-                synchronized (Motor.this) {
-                    if (s != null && actual == v) {
-                        if (segundo != null) {
-                            segundo.cerrar();
-                        }
-                        segundo = s;
-                        actualSegundo = v;
-                    } else if (s != null) {
-                        s.cerrar();
-                    }
-                }
-            } finally {
-                synchronized (Motor.this) {
-                    arrancandoSegundo = false;
-                }
-            }
-        }, "ivona-segundo");
-        t.setDaemon(true);
-        t.start();
-    }
-
-    boolean segundoListo() {
-        synchronized (this) {
-            return segundo != null && segundo.vivo() && actualSegundo == actual;
-        }
-    }
-
-    int hablarRapido(String texto, Servidor.Salida salida, int[] trozos) {
-        Servidor a;
-        Servidor b;
-        synchronized (this) {
-            a = servidor;
-            b = segundo != null && segundo.vivo() && actualSegundo == actual ? segundo : null;
-        }
-        if (a == null) {
-            return -1;
-        }
-        List<String> partes = b == null ? java.util.Collections.singletonList(texto) : Rapido.dividir(texto);
-        if (trozos != null) {
-            trozos[0] = partes.size();
-        }
-        return Rapido.ejecutar(a, b, partes, salida);
-    }
-
-    String prioridadResultado() {
-        Servidor s;
-        synchronized (this) {
-            s = servidor;
-        }
-        return s == null ? "" : s.resultadoPrioridad;
-    }
-
-    String detalles() {
-        Servidor s = servidor;
-        return s == null ? "" : s.detalles;
-    }
-
     int hablar(String texto, Servidor.Salida salida) {
         Servidor s;
         synchronized (this) {
@@ -391,26 +323,14 @@ final class Motor {
         if (s != null) {
             s.detener();
         }
-        Servidor b;
-        synchronized (this) {
-            b = segundo;
-        }
-        if (b != null && b.ocupado) {
-            b.detener();
-        }
     }
 
     synchronized void detenerProceso() {
         if (servidor != null) {
             servidor.cerrar();
         }
-        if (segundo != null) {
-            segundo.cerrar();
-        }
         servidor = null;
-        segundo = null;
         actual = null;
-        actualSegundo = null;
     }
 
     synchronized void olvidar(Voces.Voz v) {

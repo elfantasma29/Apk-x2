@@ -30,14 +30,17 @@ public class SettingsActivity extends Pantalla {
     private SharedPreferences p;
     private TextToSpeech prueba;
     private Fila filaEstado;
-    private Fila filaMedicion;
+    private Fila filaAvisos;
     private boolean arrancando = false;
     private static final String ENLACE_PAYPAL = "https://paypal.me/TutorialesParaCiegos";
     private static final String ENLACE_WHATSAPP = "https://wa.me/529844315424";
     private static final String ENLACE_GRUPO = "https://chat.whatsapp.com/BmwyFkj8CkX6IWJpqkfTLs";
     private static final String ENLACE_YOUTUBE = "https://youtube.com/@tutorialesparaciegos?si=UuXUBW6xXygK8XX5";
+    private static final String ENLACE_GIOVA = "https://youtube.com/@tiogiovaaccesible81";
     private AlertDialog bienvenida;
     private AlertDialog invitacion;
+    private AlertDialog avisoNuevo;
+    private AlertDialog errorMotor;
 
     @Override
     protected void onCreate(Bundle b) {
@@ -63,8 +66,75 @@ public class SettingsActivity extends Pantalla {
         }
         mostrarBienvenida();
         mostrarNovedades();
+        mostrarErrorMotor();
+        mostrarAvisoNuevo();
         mostrarInvitacion();
         Actualizador.comprobarAlAbrir(this);
+        Avisos.consultarAsync(this, false, ok -> ui.post(() -> {
+            if (!isFinishing() && !isDestroyed()) {
+                actualizarFilaAvisos();
+                mostrarAvisoNuevo();
+            }
+        }));
+    }
+
+    private boolean bienvenidaVista() {
+        return getSharedPreferences("estado", MODE_PRIVATE).getBoolean("bienvenida_2", false);
+    }
+
+    private boolean hayDialogo() {
+        return (bienvenida != null && bienvenida.isShowing()) || (novedades != null && novedades.isShowing())
+                || (invitacion != null && invitacion.isShowing()) || (avisoNuevo != null && avisoNuevo.isShowing())
+                || (errorMotor != null && errorMotor.isShowing());
+    }
+
+    private String textoAvisos() {
+        int n = Avisos.nuevos(this);
+        if (n == 0) {
+            return "Sin mensajes nuevos";
+        }
+        return n == 1 ? "1 mensaje nuevo" : n + " mensajes nuevos";
+    }
+
+    private void actualizarFilaAvisos() {
+        if (filaAvisos != null) {
+            filaAvisos.titulo.setText(Avisos.nuevos(this) > 0 ? "Avisos, nuevo" : "Avisos");
+            filaAvisos.resumen(textoAvisos());
+        }
+    }
+
+    private void mostrarAvisoNuevo() {
+        if (!bienvenidaVista() || hayDialogo() || isFinishing() || isDestroyed() || Actualizador.pendiente(this) != null) {
+            return;
+        }
+        if (!Avisos.hayParaNotificar(this)) {
+            return;
+        }
+        avisoNuevo = new AlertDialog.Builder(this)
+                .setTitle("Nuevo mensaje")
+                .setMessage("Hay un nuevo mensaje disponible. Revisa la sección de avisos.")
+                .setCancelable(false)
+                .setPositiveButton("Confirmar", (d, w) -> Avisos.notificado(this))
+                .create();
+        avisoNuevo.show();
+    }
+
+    private void mostrarErrorMotor() {
+        SharedPreferences e = getSharedPreferences("estado", MODE_PRIVATE);
+        String err = e.getString("motor_error", null);
+        if (err == null || hayDialogo() || isFinishing() || isDestroyed() || !bienvenidaVista()) {
+            return;
+        }
+        e.edit().remove("motor_error").apply();
+        errorMotor = new AlertDialog.Builder(this)
+                .setTitle("El motor no pudo iniciarse")
+                .setMessage("Ivona TTS no pudo iniciarse en este teléfono, ni con el ejecutor rápido ni con el de respaldo. Por favor, informa al desarrollador cuanto antes para que pueda solucionarlo: toca Compartir fallos y envíame el informe, o contáctame por WhatsApp.")
+                .setCancelable(false)
+                .setPositiveButton("Compartir fallos", (d, w) -> compartirFallos())
+                .setNeutralButton("Contactar por WhatsApp", (d, w) -> abrirEnlace(ENLACE_WHATSAPP))
+                .setNegativeButton("Cerrar", null)
+                .create();
+        errorMotor.show();
     }
 
     private void abrirEnlace(String url) {
@@ -77,13 +147,10 @@ public class SettingsActivity extends Pantalla {
 
     private void mostrarInvitacion() {
         final SharedPreferences e = getSharedPreferences("estado", MODE_PRIVATE);
-        if (!e.getBoolean("bienvenida_vista", false) || e.getBoolean("grupo_unido", false)) {
+        if (!e.getBoolean("bienvenida_2", false) || e.getBoolean("grupo_unido", false)) {
             return;
         }
-        if (isFinishing() || isDestroyed()) {
-            return;
-        }
-        if ((invitacion != null && invitacion.isShowing()) || (bienvenida != null && bienvenida.isShowing()) || (novedades != null && novedades.isShowing())) {
+        if (isFinishing() || isDestroyed() || hayDialogo()) {
             return;
         }
         if (Actualizador.pendiente(this) != null) {
@@ -113,7 +180,7 @@ public class SettingsActivity extends Pantalla {
         if (novedades != null && novedades.isShowing()) {
             return;
         }
-        if (!getSharedPreferences("estado", MODE_PRIVATE).getBoolean("bienvenida_vista", false)) {
+        if (!bienvenidaVista()) {
             return;
         }
         String[] n = Actualizador.novedadesPorMostrar(this);
@@ -137,47 +204,68 @@ public class SettingsActivity extends Pantalla {
         novedades.show();
     }
 
+    private TextView parrafo(LinearLayout col, String t) {
+        TextView v = new TextView(this);
+        v.setText(t);
+        v.setTextSize(16);
+        v.setTextColor(color(R.color.texto));
+        v.setLineSpacing(0, 1.15f);
+        v.setPadding(0, dp(6), 0, dp(6));
+        col.addView(v);
+        return v;
+    }
+
     private void mostrarBienvenida() {
-        SharedPreferences e = getSharedPreferences("estado", MODE_PRIVATE);
-        if (e.getBoolean("bienvenida_vista", false) || (bienvenida != null && bienvenida.isShowing())) {
+        final SharedPreferences e = getSharedPreferences("estado", MODE_PRIVATE);
+        if (e.getBoolean("bienvenida_2", false) || (bienvenida != null && bienvenida.isShowing())) {
             return;
         }
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
         col.setPadding(dp(24), dp(8), dp(24), dp(8));
-        TextView cuerpo = new TextView(this);
-        cuerpo.setText(TEXTO_BIENVENIDA);
-        cuerpo.setTextSize(16);
-        cuerpo.setTextColor(color(R.color.texto));
-        cuerpo.setLineSpacing(0, 1.15f);
-        col.addView(cuerpo);
-        TextView autor = new TextView(this);
-        autor.setText("Idea creada, implementada y desarrollada por Emmanuel, el Fantasma, en colaboración con Tutoriales para Ciegos.");
-        autor.setTextSize(15);
-        autor.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-        autor.setTextColor(color(R.color.acento));
-        autor.setPadding(0, dp(20), 0, dp(4));
-        col.addView(autor);
+        for (String t : PARRAFOS_BIENVENIDA) {
+            parrafo(col, t);
+        }
+        TextView creditos = parrafo(col, "Diálogo creado, desarrollado e implementado por Emmanuel el Fantasma.");
+        creditos.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        TextView titulo = new TextView(this);
+        titulo.setText("Agradecimiento especial");
+        titulo.setTextSize(18);
+        titulo.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        titulo.setTextColor(color(R.color.acento));
+        titulo.setAccessibilityHeading(true);
+        titulo.setPadding(0, dp(20), 0, dp(4));
+        col.addView(titulo);
+        TextView gracias = parrafo(col, "Un agradecimiento muy especial al compañero Tio Giova accesible, por aportar los datos de las voces Conchita y Penélope del motor Ivona para este proyecto. Gracias por tu contribución. Visita su canal de YouTube con el botón Visitar canal.");
+        gracias.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
         ScrollView sv = new ScrollView(this);
         sv.addView(col);
         bienvenida = new AlertDialog.Builder(this)
-                .setTitle("Antes de empezar")
+                .setTitle("Bienvenido a Ivona TTS")
                 .setView(sv)
                 .setCancelable(false)
-                .setPositiveButton("Confirmar", (d, w) -> {
-                    e.edit().putBoolean("bienvenida_vista", true).apply();
+                .setPositiveButton("Entendido", (d, w) -> {
+                    e.edit().putBoolean("bienvenida_2", true).putBoolean("bienvenida_vista", true).apply();
+                    Avisos.notificado(this);
                     ui.postDelayed(this::mostrarInvitacion, 400);
                 })
-                .setNeutralButton("Apoyar el proyecto", null)
+                .setNeutralButton("Visitar canal", null)
+                .setNegativeButton("Apoyar el proyecto", null)
                 .create();
         bienvenida.show();
-        bienvenida.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> abrirEnlace(ENLACE_PAYPAL));
+        bienvenida.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener(v -> abrirEnlace(ENLACE_GIOVA));
+        bienvenida.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(v -> abrirEnlace(ENLACE_PAYPAL));
     }
 
-    private static final String TEXTO_BIENVENIDA =
-            "Hola. Ivona TTS nació para que las voces de Ivona no se pierdan. Revive el antiguo motor Ivona en teléfonos actuales de 64 bits, con las voces en español Conchita y Penélope.\n\n"
-                    + "Aquí no tienes que buscar los archivos de las voces ni copiarlos en carpetas: se descargan e instalan desde la propia aplicación, con un toque.\n\n"
-                    + "Es un proyecto personal, hecho sin computadora: investigo, escribo, compilo y creo las aplicaciones desde mi teléfono, con inteligencia artificial como ayuda. Si quieres apoyar el proyecto, tu aporte lo hace posible. Si no puedes, la aplicación sigue ahí para que la pruebes. Gracias por estar aquí.";
+    private static final String[] PARRAFOS_BIENVENIDA = {
+            "Hola, y gracias por probar este lanzamiento.",
+            "En esta ocasión revivimos Ivona TTS, un motor de voz que dejó de funcionar en los teléfonos modernos. Este es el segundo lanzamiento de un proyecto con una misión: devolver a la vida motores de voz antiguos y, en el futuro, lanzar nuestro propio motor con nuestras propias voces. Habrá más lanzamientos, incluso voces de computadora traídas a Android.",
+            "Esta vez el trabajo fue más grande que con el motor anterior. Ivona se hizo para teléfonos de otra época, y al principio era demasiado lento para leer con fluidez. Tuvimos que modernizarlo por dentro, en sus capas más profundas, para que respondiera rápido. Descubrir de dónde venía esa lentitud nos tomó más tiempo y esfuerzo, y también elevó el costo de la inteligencia artificial con la que trabajamos.",
+            "Y hay una parte difícil de decir. Traer motores antiguos a la vida y portar voces de computadora a Android requiere mucho trabajo, y la inteligencia artificial que nos ayuda hay que pagarla. Además, el siguiente motor o voz que queremos traer también tiene costo. Por eso, los lanzamientos se detendrán hasta que juntemos lo necesario. Por nuestra cuenta, de nuestros propios bolsillos, eso podría tardar varios meses o incluso detenerse para siempre.",
+            "Si decides apoyarnos, aunque sea con una donación pequeña, continuamos. Esta es nuestra promesa: cuando lleguen las dos primeras donaciones, sin importar la cantidad, retomamos el proyecto. Puedes ayudar desde Ajustes, en Ayudar al proyecto.",
+            "Pero no importa si decides donar o no. Te invitamos a probar el motor, a darnos tus sugerencias y a avisarnos de cualquier problema que encuentres, para que juntos revisemos que todo salga bien.",
+            "Por último, gracias por estar aquí."
+    };
 
     @Override
     protected void onDestroy() {
@@ -196,11 +284,13 @@ public class SettingsActivity extends Pantalla {
         Motor mo = Motor.get(this);
         armar("Ivona TTS", "Versión " + BuildInfo.nombreVersion(this));
 
-        seccion("Probar la voz");
+        seccion("Estado y prueba");
         filaEstado = filaInfo("Estado del motor", mo.estado());
         fila("Escuchar una frase de prueba", "Lee una frase de ejemplo con tu configuración actual", this::probar);
+        fila("Elegir Ivona TTS como motor de voz", "Abre los ajustes de texto a voz de Android", this::abrirAjustesTts);
 
-        fila("Ir a los ajustes de texto a voz de Android", "Para elegir Ivona TTS como motor predeterminado", this::abrirAjustesTts);
+        seccion("Avisos");
+        filaAvisos = fila(Avisos.nuevos(this) > 0 ? "Avisos, nuevo" : "Avisos", textoAvisos(), () -> startActivity(new Intent(this, AvisosActivity.class)));
 
         seccion("Voces de Ivona");
         int cuantas = Voces.instaladas(this).size();
@@ -276,36 +366,6 @@ public class SettingsActivity extends Pantalla {
                 }));
         nota("Con el volumen multimedia, lo que piden los juegos y las aplicaciones suena por el volumen multimedia en lugar del de accesibilidad, y las grabadoras de pantalla pueden capturarlo.");
 
-        seccion("Respuesta del motor (experimental)");
-        interruptor("Aumentar respuesta del motor", "Reduce la latencia: usa un segundo motor para repartir las frases largas, sube la prioridad de los hilos, recorta los silencios y no retiene audio. Gasta más memoria y batería", p.getBoolean("respuesta_rapida", false), v -> {
-            p.edit().putBoolean("respuesta_rapida", v).apply();
-            breve(v ? "Respuesta del motor aumentada" : "Respuesta del motor normal");
-            if (!v) {
-                Motor.get(this).apagar();
-            }
-        });
-        interruptor("Ejecutor rápido del motor", "Ejecuta el motor con un traductor más rápido que QEMU, que convierte a código nativo las partes que más trabajan. Si no funciona en tu teléfono, vuelve a QEMU solo", p.getBoolean("ejecutor_rapido", false), v -> {
-            p.edit().putBoolean("ejecutor_rapido", v).apply();
-            breve(v ? "Ejecutor rápido activado" : "Ejecutor rápido desactivado");
-            Motor.get(this).apagar();
-        });
-        interruptor("Fijar el motor en los núcleos rápidos", "Mantiene el motor en los núcleos más potentes del procesador para que no empiece en los lentos. Compáralo con la medición", p.getBoolean("nucleos_rapidos", false), v -> {
-            p.edit().putBoolean("nucleos_rapidos", v).apply();
-            breve(v ? "Motor fijado en los núcleos rápidos" : "Motor sin fijar");
-            Motor.get(this).apagar();
-        });
-        if (Medicion.activa(this)) {
-            filaMedicion = filaInfo("Medición de latencia", Medicion.estadoTexto(this));
-            boton("Detener medición y guardar en Descargas", v -> detenerMedicion());
-        } else {
-            fila("Iniciar medición de latencia", "Mide cuánto tarda cada frase en sonar mientras usas el lector. Al detenerla se guarda un archivo de texto en Descargas", () -> {
-                Medicion.iniciar(this);
-                breve("Medición iniciada. Usa el lector con normalidad y vuelve aquí para detenerla");
-                construir();
-            });
-        }
-        nota("Es una función experimental. Para comparar, mide un rato con la opción desactivada y otro rato con ella activada.");
-
         seccion("Lectura del texto");
         fila("Ajustes de texto de lectura", "Emoji, números, enlaces y diccionario", () -> startActivity(new Intent(this, LecturaActivity.class)));
 
@@ -325,15 +385,14 @@ public class SettingsActivity extends Pantalla {
 
         seccion("Acerca de");
         filaInfo("Ivona TTS", "Versión " + BuildInfo.nombreVersion(this));
-        filaInfo("El proyecto", "Ivona TTS es una versión personal que revive el antiguo motor de voz Ivona para que funcione en teléfonos actuales de 64 bits. Trae las voces en español Conchita, de España, y Penélope, de Estados Unidos, que se descargan desde la propia aplicación. Es una idea desarrollada por Emmanuel, el Fantasma, dentro del proyecto de revivir motores antiguos para que no se pierdan. Las voces y la marca Ivona pertenecen a sus dueños originales; esta aplicación no está afiliada a ellos. Para no perderte novedades ni próximos lanzamientos, visita nuestro canal de YouTube.");
-        boton("Visitar el canal de YouTube", v -> abrirEnlace(ENLACE_YOUTUBE));
+        filaInfo("El proyecto", "Ivona TTS es una versión personal que revive el antiguo motor de voz Ivona para que funcione en teléfonos actuales de 64 bits. Trae las voces en español Conchita, de España, y Penélope, de Estados Unidos, que se descargan desde la propia aplicación. Es una idea desarrollada por Emmanuel, el Fantasma, dentro del proyecto de revivir motores antiguos para que no se pierdan. Las voces y la marca Ivona pertenecen a sus dueños originales; esta aplicación no está afiliada a ellos.");
+        filaInfo("Agradecimiento especial", "Al compañero Tio Giova accesible, por aportar los datos de las voces Conchita y Penélope del motor Ivona para este proyecto.");
+        botonSecundario("Visitar el canal de Tio Giova accesible", v -> abrirEnlace(ENLACE_GIOVA));
+        boton("Visitar nuestro canal de YouTube", v -> abrirEnlace(ENLACE_YOUTUBE));
 
-        seccion("Contáctame");
-        filaInfo("Contáctame", "Si tienes alguna duda, inquietud, sugerencia o quieres hablar conmigo, contáctame.");
-        filaInfo("Mi número de WhatsApp", "+52 984 431 5424");
-        boton("Contactar", v -> abrirEnlace(ENLACE_WHATSAPP));
-
-        seccion("Ayudar al proyecto");
+        seccion("Contacto y apoyo");
+        filaInfo("Contáctame", "Si tienes alguna duda, inquietud o sugerencia, o quieres hablar conmigo, escríbeme al WhatsApp +52 984 431 5424.");
+        botonSecundario("Contactar por WhatsApp", v -> abrirEnlace(ENLACE_WHATSAPP));
         filaInfo("Ayudar al proyecto", "Si quieres apoyar el proyecto, tu aporte hace posible los próximos lanzamientos.");
         boton("Apoyar el proyecto", v -> abrirEnlace(ENLACE_PAYPAL));
     }
@@ -385,6 +444,7 @@ public class SettingsActivity extends Pantalla {
                 arrancando = false;
                 if (!isDestroyed()) {
                     construir();
+                    mostrarErrorMotor();
                 }
             });
         }, "arranque-ajustes").start();
@@ -450,33 +510,6 @@ public class SettingsActivity extends Pantalla {
         String fp = mo.falloPrevio();
         cm.setPrimaryClip(ClipData.newPlainText("registro", "Estado: " + mo.estado() + "\n" + (fp.length() > 0 ? "FALLOS GUARDADOS:\n" + fp + "\n---\n" : "") + mo.registroReciente()));
         breve("Registro copiado");
-    }
-
-    private void detenerMedicion() {
-        final Context c = getApplicationContext();
-        new Thread(() -> {
-            try {
-                String[] r = Medicion.detener(c);
-                ui.post(() -> {
-                    construir();
-                    new AlertDialog.Builder(this)
-                            .setTitle("Medición guardada")
-                            .setMessage("Se guardó en la carpeta Descargas con el nombre " + r[0] + ". " + r[1])
-                            .setPositiveButton("Aceptar", null)
-                            .show();
-                });
-            } catch (Throwable t) {
-                Motor.get(c).guardarFallo("medición", t);
-                ui.post(() -> {
-                    construir();
-                    new AlertDialog.Builder(this)
-                            .setTitle("No se pudo guardar la medición")
-                            .setMessage(String.valueOf(t.getMessage()))
-                            .setPositiveButton("Aceptar", null)
-                            .show();
-                });
-            }
-        }, "detener-medicion").start();
     }
 
     private void crearCopia() {

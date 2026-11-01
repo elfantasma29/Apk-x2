@@ -10,8 +10,8 @@ android {
         applicationId 'com.ivona.tts'
         minSdk 29
         targetSdk 36
-        versionCode 6
-        versionName '0.4.0'
+        versionCode 8
+        versionName '2.1'
         ndk {
             abiFilters 'arm64-v8a'
         }
@@ -19,10 +19,10 @@ android {
 
     signingConfigs {
         fantasma {
-            storeFile rootProject.file('firma/ivona_prueba.jks')
-            storePassword 'ivonaprueba'
+            storeFile file(System.getenv('IVONA_KS') ?: 'sin_llave.jks')
+            storePassword System.getenv('IVONA_KS_PASS')
             keyAlias 'fantasma'
-            keyPassword 'ivonaprueba'
+            keyPassword System.getenv('IVONA_KS_PASS')
         }
     }
 
