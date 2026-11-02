@@ -350,6 +350,11 @@ void Hilo::CallSVC(u32 swi) {
                 if (nn > 0) {
                     b[nn] = 0; std::string pth = b; size_t sl = pth.rfind('/'); std::string bn = sl == std::string::npos ? pth : pth.substr(sl + 1);
                     bool conocida = false; for (const HotFn* hf = hot_table; hf->lib; hf++) if (bn == hf->lib) { conocida = true; break; }
+                    if (conocida) {
+                        struct stat sb;
+                        long esperado = bn == "libvoice_es_conchita.so" ? 416240 : bn == "libvoice_es_us_penelope.so" ? 415492 : bn == "libttsivonavoice.so" ? 1637476 : -1;
+                        if (fstat((int)a4, &sb) != 0 || sb.st_size != esperado) conocida = false;
+                    }
                     if (a5 == 0 && conocida) { std::lock_guard<std::mutex> lk(hook_lock); hot_bases[bn] = addr; }
                 }
             }

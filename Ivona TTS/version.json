@@ -1,7 +1,8 @@
 {
-  "versionCode": 8,
-  "versionName": "2.1",
-  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/Ivona%20TTS/apk/IvonaTTS_v2.1.apk",
-  "sha256": "38c7afe4b07c29bc7057848317ebc735fc883be01976656fb125a7bdb35db8c6",
-  "novedades": "Ivona TTS 2.1.\n\nVersión de prueba de actualización. No cambia nada del funcionamiento respecto a la 2.0: sirve para comprobar que la actualización desde la aplicación se descarga e instala bien.\n\nSi la actualización te funcionó, avísame. Si algo falló, compárteme el fallo desde Ajustes, Fallos y registro."
+  "versionCode": 9,
+  "versionName": "2.2",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/Ivona%20TTS/apk/IvonaTTS_v2.2.apk",
+  "sha256": "1786422be8ce1ac3d5a5bfd3a8faf1c862bcbdcedb5ff11e05fa9b1af06de198",
+  "novedades": "Ivona TTS 2.2.\n\nNovedades:\n- Nuevo selector de idioma. Al abrir la aplicación eliges entre español y portugués de Brasil, y toda la aplicación aparece en ese idioma. Puedes cambiarlo cuando quieras en Ajustes, sección Idiomas.\n- Dos voces nuevas en portugués de Brasil: Ricardo y Vitória. Se descargan desde Descargar e instalar voces.\n- Las voces que ves dependen del idioma elegido.\n- La lectura de emoji y símbolos también funciona en portugués.\n\nSi algo falla, compárteme el fallo desde Ajustes, Fallos y registro.",
+  "novedades_pt-BR": "Ivona TTS 2.2.\n\nNovidades:\n- Novo seletor de idioma. Ao abrir o aplicativo você escolhe entre espanhol e português do Brasil, e todo o aplicativo aparece nesse idioma. Você pode mudar quando quiser em Configurações, seção Idiomas.\n- Duas vozes novas em português do Brasil: Ricardo e Vitória. Elas são baixadas em Baixar e instalar vozes.\n- As vozes que você vê dependem do idioma escolhido.\n- A leitura de emoji e símbolos também funciona em português.\n\nSe algo falhar, compartilhe a falha comigo em Configurações, Falhas e registro."
 }

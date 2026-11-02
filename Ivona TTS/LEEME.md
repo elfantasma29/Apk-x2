@@ -1,7 +1,7 @@
 # Ivona TTS
 
 Motor de texto a voz para Android basado en el motor antiguo IVONA, que corre en teléfonos de 64 bits.
-Paquete: com.ivona.tts. Solo arm64-v8a. Voces en español: Conchita (es-ES) y Penélope (es-US).
+Paquete: com.ivona.tts. Solo arm64-v8a. Voces en español: Conchita (es-ES) y Penélope (es-US). Voces en portugués de Brasil: Ricardo y Vitória (pt-BR).
 
 ## Cómo funciona
 - El motor original de IVONA es de 32 bits. La app lleva el emulador `libqemu.so` (el mismo de VocalizerEx2 TTS) y, dentro de `assets/guest.zip`, un servidor `ivona_server` de 32 bits con las bibliotecas mínimas.
@@ -9,7 +9,7 @@ Paquete: com.ivona.tts. Solo arm64-v8a. Voces en español: Conchita (es-ES) y Pe
 - Cada voz es un zip aparte con `lib/` y `data/`. La app lo descarga, lo descomprime en su carpeta privada y lo borra.
 
 ## Voces de prueba
-Están en la carpeta `voces`, partidas en trozos de 60 MB porque GitHub no admite archivos de más de 100 MB: `ivona_conchita.zip.001` y `.002`, `ivona_penelope.zip.001` y `.002`. La app los baja y los une al instalar. Son temporales, solo para pruebas.
+Están en la carpeta `voces`, partidas en trozos de 60 MB porque GitHub no admite archivos de más de 100 MB: `ivona_conchita.zip.001` y `.002`, `ivona_penelope.zip.001` y `.002`, `ivona_ricardo.zip.001` a `.003` y `ivona_vitoria.zip.001` a `.003`. La app los baja y los une al instalar. Son temporales, solo para pruebas.
 En la app también está "Instalar desde un archivo zip", para no gastar datos. Ahí se usa el zip completo; para unir los trozos: `cat ivona_conchita.zip.0* > ivona_conchita.zip`.
 
 ## Compilar
@@ -22,3 +22,9 @@ En la app también está "Instalar desde un archivo zip", para no gastar datos. 
 
 ## Avisos
 `mensajes.json` es el archivo de avisos que lee la app al abrirse y al entrar en Avisos. Cada mensaje lleva `id` (número creciente), `fecha`, `titulo`, `texto` e `importante`. La app muestra los 5 más recientes; para dejar solo dos o uno basta con quitar los demás del archivo. Un `id` mayor que el último visto se marca como nuevo y muestra un diálogo una sola vez.
+
+## Idiomas
+La app pregunta el idioma la primera vez que se abre (español o portugués de Brasil) y se cambia después en Ajustes, sección Idiomas. Las voces que se muestran dependen del idioma elegido.
+Las cadenas están en español dentro del código y se traducen con un archivo por idioma en `app/src/main/assets/idiomas/<codigo>.json` (por ejemplo `pt-BR.json`, con el texto en español como clave). Para añadir un idioma: crear su JSON, añadirlo a `Idioma.TODOS` y, si la lectura de emoji lo necesita, un `emoji_<idioma>.txt`.
+Los avisos y las novedades admiten campos por idioma: `titulo_pt-BR`, `texto_pt-BR`, `fecha_pt-BR` en `mensajes.json` y `novedades_pt-BR` en `version.json`; si faltan, se usa el texto en español.
+Las voces en portugués usan una versión más nueva del motor (1.6.101.3). Funcionan con el mismo ejecutor, pero sin las funciones aceleradas a mano de las voces en español. La lectura inteligente de números, fechas y enlaces solo está disponible para voces en español.
