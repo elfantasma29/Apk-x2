@@ -1,0 +1,7 @@
+{
+  "versionCode": 3,
+  "versionName": "2.0.2",
+  "apk": "https://raw.githubusercontent.com/elfantasma29/Apk-x2/main/Marta%20TTS/apk/MartaTTS_v2.0.2_build3.apk",
+  "sha256": "32f48f45ade037132d90c6e311ae829e9729976b5d10ff3dfa092395365cd0cf",
+  "novedades": "Nueva opción experimental en Ajustes: Activar mejora de la voz a través de un modelo de inteligencia artificial, que intenta que Marta suene más clara. Se puede desactivar cuando quieras. También se actualizó el enlace al canal de YouTube en la bienvenida."
+}
