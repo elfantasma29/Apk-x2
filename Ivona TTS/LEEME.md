@@ -1,6 +1,6 @@
 # Ivona TTS
 
-Motor de texto a voz para Android que usa el motor IVONA de Amazon en su versión nativa de 64 bits. Paquete: com.ivona.tts. Solo arm64-v8a. Versión actual: 4.2.
+Motor de texto a voz para Android que usa el motor IVONA de Amazon en su versión nativa de 64 bits. Paquete: com.ivona.tts. Solo arm64-v8a. Versión actual: 4.3.
 
 Esta carpeta es solo para las actualizaciones de la aplicación:
 - `version.json`: versión, enlace al APK, huella SHA-256 y novedades (en los 12 idiomas de la aplicación: español, portugués de Brasil, inglés, francés, alemán, italiano, ruso, polaco, turco, neerlandés, árabe y japonés).
